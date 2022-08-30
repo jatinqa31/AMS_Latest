@@ -38,14 +38,12 @@ import testBase.TestBase;
 @Listeners({listeners.TestAllureListener.class})
 public class AMS_actionsTest extends TestBase{
 	
-	
-	public static int count=0;
-	
 	//Dashboard dp1 = new Dashboard(TestBase.driver);
-	
+	public static String randstr;
 	Dashboard dp1;
 	search_page sp1;
-
+	SoftAssert sa = new SoftAssert();
+		
 	@BeforeClass//With this code null pointer java.lang.NullPointerException: Cannot invoke "pageobject.Dashboard.Click_inputPage()" because "this.dp1" is null
 	public void initTest(){
 	   dp1  = PageFactory.initElements(driver, Dashboard.class);
@@ -60,27 +58,86 @@ public class AMS_actionsTest extends TestBase{
 		hp.AMSactions_click();
 	}
 
-	@Test(priority=2,description="Create Asset Check Validations")
-	public void Create_Asset_Check_Validations() throws InterruptedException 
+	@Test(priority=2,description="Add Asset Type", enabled=true)
+	public void ADD_AssetType() throws InterruptedException 
 	{
 		Ams_actions ac= new Ams_actions(driver);
-		ac.Click_Add_Asset_link();
-		ac.Click_Asset_submit_btn();
-		ac.Submit_frm();
+		ac.Click_Add_AssetType_link();
+		randstr="Assettype -"+ac.Return_Rand_string();
+		System.out.println("Random = "+randstr);
+		ac.Enter_assetType(randstr);
+		ac.Click_assetType_submit_btn();
+		//ac.Click_Asset_cancel_btn();
+	}
+
+	@Test(priority=3,description="Validate Asset Type Already Exist",dependsOnMethods="ADD_AssetType",enabled=true)
+	public void Validate_AssetType_already_exist() throws InterruptedException 
+	{
+		
+		Ams_actions ac= new Ams_actions(driver);
+		ac.Click_Add_AssetType_link();
+		ac.Enter_assetType("");
+		ac.Enter_assetType(randstr);
+		
+		ac.Click_assetType_submit_btn();
+		
+//		String Alert_txt="ddd";//driver.switchTo().alert().getText();
+//		sa.assertEquals(Alert_txt, "Asset Type exists in the system Enter a valid Asset Type");
+//		sa.assertAll();
+		
+//		ac.Click_Asset_cancel_btn();
+	}
+	
+	@Test(priority=4,description="Filter Asset Type",enabled=true)
+	public void Filter_Asset_Type() throws InterruptedException
+	{
+		Ams_actions ac= new Ams_actions(driver);
+		Thread.sleep(2000);
+		ac.Click_Filter1();
+		ac.Enter_Filter_Searchtxt(randstr);
+		ac.Apply_filter_click();
+		//String Str=ac.Search_AssetType_result();
+		int rcount=ac.Count_List_AssetType();
+		if(rcount>1) {
+			System.out.println("passss");
+		}
+//		sa.assertEquals(Str, randstr);
+//		sa.assertAll();
+	}
+	
+	@Test(priority=5,description="Add Asset Check Validations",enabled=true)
+	public void Add_Asset_Validations_Check() 
+	{
+		try 
+		{
+			Ams_actions ac= new Ams_actions(driver);
+			ac.Click_Add_Asset_link();
+			ac.Click_Asset_submit_btn();
+			Thread.sleep(4000);
+			ac.Submit_frm();
+			String Alert_txt=driver.switchTo().alert().getText();
+			sa.assertEquals(Alert_txt, "Please correct flagged fields before submitting the form!");
+			sa.assertAll();
+			driver.switchTo().alert().accept();
+		}
+		catch(Exception e) {
+			System.out.println(e.getCause());
+		}
 	}
 	
 	
-	@Test(priority=3,description="Create Asset and submit",enabled=false)
-	public void Create_Asset_and_submit() throws InterruptedException 
+	@Test(priority=6,description="Add Asset and submit",enabled=true)
+	public void Add_Assets() throws InterruptedException
 	{
 		Ams_actions ac= new Ams_actions(driver);
-		ac.Click_Add_Asset_link();
-		ac.Click_Asset_submit_btn();
+//		ac.Click_Add_Asset_link();
+//		ac.Click_Asset_submit_btn();
 		ac.Select_organization("ACM");
 //		ac.Select_Division("Div");
 //		ac.Select_Unit("Unit");
 		ac.Select_Asset_type("Laptop");
-//		ac.Select_Asset("Dell");
-//		ac.Select_wheather_in_use("Yes");
-	}
+		ac.Select_Asset("Dell");
+		ac.Select_wheather_in_use("Yes");
+		ac.Submit_frm();
+	}	
 }

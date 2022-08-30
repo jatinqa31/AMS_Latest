@@ -43,7 +43,7 @@ public class LoginTest extends TestBase{
 	
 //----------------------Verify Validation msg Login with Invalid---------------------------
 	
-	@Test(priority=2,dependsOnMethods="Verify_Title")
+	@Test(priority=2,dependsOnMethods="Verify_Title",enabled=false)
 	public void Login_with_Invalid_credentials() 
 	{
 		LoginPage lp = new LoginPage(driver);
