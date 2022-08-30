@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -26,40 +27,83 @@ import testBase.TestBase;
 
 public class Ams_actions extends TestBase{
 
+	String randstr;
 	public Ams_actions(WebDriver driver) {
 		this.driver=driver;
 		PageFactory.initElements(driver, this);
 	}
-	
+	public Ams_actions(String get_srch_input) {
+		randstr=get_srch_input;
+	}	
   
   @FindBy(xpath="//a[text()='+ Asset']")
   public WebElement add_asset_link;
 
+  @FindBy(xpath="//a[text()='+ Asset Type']")
+  public WebElement add_assetType_link;  
+  
   @FindBy(xpath="//button[text()='Submit']")
   public WebElement Add_asset_Submit_btn;
   
   @FindBy(xpath="//tbody[@id='gridTableBody']//tr//th")
   List<WebElement> Table_header;
   
+//--------Asset_type_textbox --------------------------------  
+  @FindBy(xpath="//input[@name='$PAssetTypePage$pAssetType']")
+  WebElement Asset_type_txt;  
+  
+//--------Asset_type_Submit_btn --------------------------------  
+  @FindBy(xpath="//button[@id='ModalButtonSubmit']")
+  WebElement Asset_type_submit;  
+    
+//--------Asset_type_Cancel_btn --------------------------------  
+  @FindBy(xpath="//button[contains(text(),'  Cancel ')]")
+  WebElement Asset_type_cancel;  
+  
+//--------Asset_type_Validation_msg --------------------------------  
+  @FindBy(xpath="//span[text()='Asset Type exists in the system Enter a valid Asset Type']")
+  WebElement Add_Asset_type_Val_msg;  
+    
 //--------Organization selectbox --------------------------------  
   @FindBy(xpath="//select[@id='cc108b5b']")
   WebElement org_select;  
+  
+//--------Organization validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pRegionNameError']//span[text()='Value cannot be blank']")
+  WebElement org_validation;    
   
 //--------Division selectbox --------------------------------  
   @FindBy(xpath="//select[@id='1399ce02']")
   WebElement Division_select;  
 
+//--------Division validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pStateNameError']//span[text()='Value cannot be blank']")
+  WebElement division_validation;   
+  
 //--------Unit selectbox --------------------------------  
   @FindBy(xpath="//select[@data-test-id='202205261231470602871']")
   WebElement Unit_select;
+
+//--------Unit validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pUnitNameError']//span[text()='Value cannot be blank']")
+  WebElement Unit_validation;   
   
 //--------Asset Type selectbox --------------------------------  
   @FindBy(xpath="//input[@id='2cdc6628']")
   WebElement AssetType_select;  
   
+//--------Asset Type validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pAssetTypeError']//span[text()='Value cannot be blank']")
+  WebElement Asset_type_validation;   
+  
 //--------Asset Selectbox --------------------------------  
   @FindBy(xpath="//input[@id='5e59a106']")
   WebElement Asset_select;  
+
+//--------Asset validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pNameError']//span[text()='Value cannot be blank']")
+  WebElement Asset_validation;   
+    
   
 //--------Specification Textbox --------------------------------  
   @FindBy(xpath="//input[@id='fdf489fb']")
@@ -68,6 +112,10 @@ public class Ams_actions extends TestBase{
 //--------Wheather In Use selectbox --------------------------------  
   @FindBy(xpath="//select[@id='ed6e44b8']")
   WebElement Select_wheather_in_use;  
+    
+//--------Wheather in use validation msg --------------------------------  
+  @FindBy(xpath="//div[@id='$PAssetPage$pWhetherInUseError']//span[text()='Value cannot be blank']")
+  WebElement wheather_validation;    
     
 //--------Service start date Textbox --------------------------------  
   @FindBy(xpath="//input[@id='63270bca']")
@@ -80,6 +128,83 @@ public class Ams_actions extends TestBase{
 //--------Asset Address Textbox --------------------------------  
   @FindBy(xpath="//button[text()='Submit']")
   WebElement Submit_btn;    
+
+//--------Assets page count Textbox --------------------------------  
+  @FindBy(xpath="//label[@data-test-id='20141007100658002115508']")
+  WebElement Assets_pg_count;    
+
+//--------Last page count --------------------------------  
+  @FindBy(xpath="//button[@title='Last Page']")
+  WebElement Last_page;    
+  
+//--------List assets table --------------------------------    
+  @FindBy(xpath = "//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[2]//table[@id='bodyTbl_right']//tbody//tr")
+  List<WebElement> List_assets;
+  
+//--------List assetsType table --------------------------------    
+  @FindBy(xpath = "//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[1]//table[@id='bodyTbl_right']//tbody//tr")
+  List<WebElement> List_asset_type;
+  
+//--------List activities table --------------------------------    
+  @FindBy(xpath = "//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[3]//table[@id='bodyTbl_right']//tbody//tr")
+  List<WebElement> List_activities;  
+  
+//-29-evening------------------Filter Options----------------------------
+//-------------
+  @FindBy(xpath="//a[@id='pui_filter']")
+  WebElement filter_button1;
+ 
+//-------------------Filter Options----------------------------
+  @FindBy(xpath="//input[@data-test-id='201411181100280377101613']")
+  WebElement filter_search_txt;
+ 
+//-------------------Apply Filter Button----------------------------
+  @FindBy(xpath="//button[text()='Apply']")
+  WebElement Apply_filter_btn;
+//button[@onclick='pega.u.d.getPopOver(0).close('OK')']
+//-------------------Cancel Filter Button----------------------------
+  @FindBy(xpath="//button[@onclick='pega.u.d.getPopOver(0).close('cancel')']")
+  WebElement Cancel_filter_btn;
+ 
+  //-------------------AssetType_Filter_Result----------------------------
+  @FindBy(xpath="//table[@id='bodyTbl_right']//tbody//tr")
+  WebElement AssetType_Srch_filter_result;
+  
+ 
+  public void Click_Filter1()
+  {
+	 WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+	 wait.until(ExpectedConditions.elementToBeClickable(filter_button1));
+	 filter_button1.click();
+  }
+ 
+  public void Enter_Filter_Searchtxt(String str)
+  {
+ WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+ wait.until(ExpectedConditions.elementToBeClickable(filter_search_txt));
+ filter_search_txt.sendKeys(str);
+  }    
+ 
+  public void Apply_filter_click()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Apply_filter_btn));
+      Apply_filter_btn.click();
+  }
+ 
+  public void cancel_filter_click()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Cancel_filter_btn));
+      Cancel_filter_btn.click();
+  }    
+  
+  public String Search_AssetType_result()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(AssetType_Srch_filter_result));
+	  return AssetType_Srch_filter_result.getText();
+  }   
   
   public void Click_Add_Asset_link()
   {
@@ -88,11 +213,41 @@ public class Ams_actions extends TestBase{
 	  add_asset_link.click();
   }
 
+  public void Click_Add_AssetType_link()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(add_assetType_link));
+	  //add_assetType_link.click();
+	  ((JavascriptExecutor)driver).executeScript("arguments[0].click();", add_assetType_link);
+  }
+  
+  public void Enter_assetType(String str)
+  {
+	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Asset_type_txt));
+	  Asset_type_txt.sendKeys(str);
+  }
+
+  public void Click_assetType_submit_btn()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Asset_type_submit));
+	  Asset_type_submit.click();
+  }
+  
   public void Click_Asset_submit_btn()
   {
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	  wait.until(ExpectedConditions.elementToBeClickable(Add_asset_Submit_btn));
-	  Add_asset_Submit_btn.click();
+//	  Add_asset_Submit_btn.click();
+	  ((JavascriptExecutor)driver).executeScript("arguments[0].click();", Add_asset_Submit_btn);  
+  }
+  
+  public void Click_Asset_cancel_btn()
+  {
+	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Asset_type_cancel));
+	  ((JavascriptExecutor)driver).executeScript("arguments[0].click();", Asset_type_cancel);  
   }
   
   
@@ -122,16 +277,14 @@ public class Ams_actions extends TestBase{
   
   public void Select_Asset_type(String str) throws InterruptedException
   {
+	  Thread.sleep(4000);
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	  wait.until(ExpectedConditions.elementToBeClickable(AssetType_select));
-	  AssetType_select.sendKeys(Keys.DOWN);
+	  //AssetType_select.sendKeys(Keys.DOWN);
 	  AssetType_select.sendKeys("Laptop");
-	  
-	  Thread.sleep(2000);
-	  //selectOptionfromList(str);
+	  selectOptionfromList(str);
   }
-
-  
+ 
   public void Select_Asset(String str) throws InterruptedException
   {
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -164,15 +317,31 @@ public class Ams_actions extends TestBase{
   
   public void Submit_frm()
   {
-//	  JavascriptExecutor js = (JavascriptExecutor) driver;
-//	  js.executeScript("window.scrollBy(0,450)", "");
-//	  System.out.println("print the button "+Submit_btn.getText());     
+	  JavascriptExecutor js = (JavascriptExecutor) driver;
+	  js.executeScript("window.scrollBy(0,450)", "");  
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
 	  wait.until(ExpectedConditions.elementToBeClickable(Submit_btn));
+      System.out.println("Is enabled "+Submit_btn.isEnabled());
+	  
       Submit_btn.click();
   } 
   
-  public void selectOptionfromList(String textToSelect) {
+ public void Assets_count()
+ {
+	 Last_page.click();
+	 
+ }
+  
+ public int Count_List_AssetType()
+ {
+	 return List_asset_type.size();
+	 
+ }
+  
+ 
+ 
+  public void selectOptionfromList(String textToSelect) 
+  {
 		try {
 			Thread.sleep(3000);
 			List<WebElement> autoOptions = driver.findElements(By.xpath("//div[@class='cellIn']//span//span"));
@@ -180,7 +349,7 @@ public class Ams_actions extends TestBase{
 			System.out.println("Size "+autoOptions.size());
 			for(WebElement option : autoOptions)
 			{
-				System.out.println("valuss "+option.getText());
+				//System.out.println("valuss "+option.getText());
 		        if(option.getText().equals(textToSelect))
 		        {
 		        	System.out.println("Trying to select: "+textToSelect);
@@ -188,8 +357,8 @@ public class Ams_actions extends TestBase{
 		            break;
 		        }
 			}
-			
-		} catch (NoSuchElementException e) {
+		  }
+		catch (NoSuchElementException e) {
 			System.out.println(e.getStackTrace());
 		}
 		catch (Exception e) {
@@ -197,6 +366,9 @@ public class Ams_actions extends TestBase{
 		}
 	}
 	
+  
+  
+  
 	public List<String> Traverse_pagination() throws InterruptedException {
 
 //		int recordcount = Integer.parseInt(Record_count.getText());
@@ -224,4 +396,36 @@ public class Ams_actions extends TestBase{
 		return allHeaderNames;
 	}	
 
+	public String Return_Rand_string()
+	{
+	    // create a string of all characters
+	    String alphabet = "ABCDEFG";
+
+	    // create random string builder
+	    StringBuilder sb = new StringBuilder();
+
+	    // create an object of Random class
+	    Random random = new Random();
+
+	    // specify length of random string
+	    int length = 5;
+
+	    for(int i = 0; i < length; i++) {
+
+	      // generate random index number
+	      int index = random.nextInt(alphabet.length());
+
+	      // get character specified by index
+	      // from the string
+	      char randomChar = alphabet.charAt(index);
+
+	      // append the character to string builder
+	      sb.append(randomChar);
+	    }
+
+	    String randomString = sb.toString();
+	    return randomString;
+	    //System.out.println("Random String is: " + randomString);
+
+	}
 }
