@@ -28,6 +28,9 @@ import testBase.TestBase;
 public class Ams_actions extends TestBase{
 
 	String randstr;
+	static boolean asset_found=false;
+	static int index_ele=0;// is the index of asset to be edited & deleted
+	
 	public Ams_actions(WebDriver driver) {
 		this.driver=driver;
 		PageFactory.initElements(driver, this);
@@ -126,11 +129,11 @@ public class Ams_actions extends TestBase{
   WebElement Aset_address_txt;    
   
 //--------Asset Address Textbox --------------------------------  
-  @FindBy(xpath="//button[text()='Submit']")
+  @FindBy(xpath="//button[contains(text(),'Submit')]")
   WebElement Submit_btn;    
 
-//--------Assets page count Textbox --------------------------------  
-  @FindBy(xpath="//label[@data-test-id='20141007100658002115508']")
+//--------Assets page count --------------------------------  
+  @FindBy(xpath="//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[2]//label[@data-test-id='20141007100658002115508']")
   WebElement Assets_pg_count;    
 
 //--------Last page count --------------------------------  
@@ -170,7 +173,22 @@ public class Ams_actions extends TestBase{
   @FindBy(xpath="//table[@id='bodyTbl_right']//tbody//tr")
   WebElement AssetType_Srch_filter_result;
   
- 
+
+  //-------------------AssetType_Filter_Result----------------------------
+  @FindBy(xpath="//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[2]//button[@title='Next Page']")
+  WebElement Asset_Nxt_btn;
+  
+  //-------------------Delete Asset submit button----------------------------
+  @FindBy(xpath="//button[text()='  Submit ']")
+  WebElement Del_Asset_submit_btn;
+  
+  public String get_AssetType_valmsg()
+  {
+	 WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
+	 wait.until(ExpectedConditions.elementToBeClickable(Add_Asset_type_Val_msg));
+	 return Add_Asset_type_Val_msg.getText();
+  }
+  
   public void Click_Filter1()
   {
 	 WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
@@ -281,7 +299,7 @@ public class Ams_actions extends TestBase{
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	  wait.until(ExpectedConditions.elementToBeClickable(AssetType_select));
 	  //AssetType_select.sendKeys(Keys.DOWN);
-	  AssetType_select.sendKeys("Laptop");
+	  AssetType_select.sendKeys(str);
 	  selectOptionfromList(str);
   }
  
@@ -314,6 +332,13 @@ public class Ams_actions extends TestBase{
 	  wait.until(ExpectedConditions.elementToBeClickable(Service_start_date_txt));
 	  Service_start_date_txt.sendKeys("8/25/2022 12:25 AM");
   }  
+
+  public void click_Asset_del_button() throws InterruptedException
+  {
+	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	  wait.until(ExpectedConditions.elementToBeClickable(Del_Asset_submit_btn));
+	  Del_Asset_submit_btn.click();
+  }  
   
   public void Submit_frm()
   {
@@ -321,7 +346,7 @@ public class Ams_actions extends TestBase{
 	  js.executeScript("window.scrollBy(0,450)", "");  
 	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
 	  wait.until(ExpectedConditions.elementToBeClickable(Submit_btn));
-      System.out.println("Is enabled "+Submit_btn.isEnabled());
+      //System.out.println("Is enabled "+Submit_btn.isEnabled());
 	  
       Submit_btn.click();
   } 
@@ -338,7 +363,21 @@ public class Ams_actions extends TestBase{
 	 
  }
   
+ public int Count_List_Asset()
+ {
+	 return List_assets.size();
+	 
+ } 
+
+ public void Edit_asset(int index_ele) 
+ {
+		List_assets.get(index_ele).findElements(By.xpath("//i[@data-test-id='202203300135520890283']")).get(index_ele-1).click();
+ }
  
+ public void delete_asset(int index_ele) 
+ {
+	List_assets.get(index_ele).findElements(By.xpath("//i[@data-test-id='202203300135520890667']")).get(index_ele-1).click();
+ }
  
   public void selectOptionfromList(String textToSelect) 
   {
@@ -346,7 +385,7 @@ public class Ams_actions extends TestBase{
 			Thread.sleep(3000);
 			List<WebElement> autoOptions = driver.findElements(By.xpath("//div[@class='cellIn']//span//span"));
 
-			System.out.println("Size "+autoOptions.size());
+			//System.out.println("Size "+autoOptions.size());
 			for(WebElement option : autoOptions)
 			{
 				//System.out.println("valuss "+option.getText());
@@ -369,31 +408,40 @@ public class Ams_actions extends TestBase{
   
   
   
-	public List<String> Traverse_pagination() throws InterruptedException {
-
-//		int recordcount = Integer.parseInt(Record_count.getText());
-//		recordcount=5;
-		
+	public int Search_asset(String asset_name) throws InterruptedException {
+		int j=1;
+		int recordcount = Integer.parseInt(Assets_pg_count.getText());
+//		System.out.println("Reccc "+ recordcount);
 		List<String> allHeaderNames = new ArrayList<String>();
 		
-//		for (int k=2; k<=recordcount; k++) {
-//			Thread.sleep(4000);
-			List<WebElement> allHeadersEle = Table_header; 
-			int i=0;
-			for (WebElement header : allHeadersEle) 
+		for (int k=2; k<=recordcount; k++) {
+			Thread.sleep(4000);
+			//List<WebElement> list_assets =List_assets;// driver.findElements(By.xpath("//div[@class=' flex content layout-content-inline_grid_double  content-inline_grid_double ']/child::div[2]//table[@id='bodyTbl_right']//tbody//tr")); 
+			
+			System.out.println("List_count "+ List_assets.size());
+			//j is used to iterate in inner list starting from index one-1
+			for(j=1;j<=List_assets.size()-1;j++)
+			
+			//for (WebElement header : list_assets) 
 			{
+				String Asset_Name = List_assets.get(j).findElements(By.xpath("//a[@data-test-id='202203290949270601791']")).get(j-1).getText();
+				//System.out.println("Asset Name "+Asset_Name);
 				
-				if(i==8) {
+				if (Asset_Name.equalsIgnoreCase(asset_name))
+				{	
+					asset_found=true;
+					index_ele=j-1;
+					//System.out.println("Asset-Found = "+asset_found);
 					break;
 				}
-				String headerName = header.getText();
-				//System.out.println("Headerr"+headerName);
-				allHeaderNames.add(headerName);
-				i=i+1;
+				
 			}
-//			Next_pages.click();
-//		}
-		return allHeaderNames;
+			if(asset_found==true) {
+				break;
+			}
+			Asset_Nxt_btn.click();
+		}
+		return j;
 	}	
 
 	public String Return_Rand_string()
@@ -428,4 +476,5 @@ public class Ams_actions extends TestBase{
 	    //System.out.println("Random String is: " + randomString);
 
 	}
+	
 }
